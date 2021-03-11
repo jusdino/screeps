@@ -74,8 +74,10 @@ module.exports = {
         } else {
             // Prioritize pull link
             const link = targeter.findEnergyLinkWithdrawTarget(creep);
-            if (link != null && creep.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(link, {visualizePathStyle: {stroke: '#ffaa00'}});
+            if (link != null) {
+                if (creep.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(link, {visualizePathStyle: {stroke: '#ffaa00'}});
+                }
                 return;
             }
             // Next prioritize anchor container/storage
@@ -84,7 +86,6 @@ module.exports = {
             let target = anchor.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (structure) => (
                     (
-                        structure.structureType == STRUCTURE_LINK ||
                         structure.structureType == STRUCTURE_CONTAINER
                     ) &&
                     structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0

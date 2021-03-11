@@ -29,26 +29,27 @@ module.exports = {
         const targets = room.find(findType, {
             filter: filterFunc
         });
-        // Initialize anchor memory for targets
-        for (const target of targets) {
-            if (Memory.anchors[target.id] == null) {
-                Memory.anchors[target.id] = {'creeps': []}
+        if (targets.length > 0) {
+            // Initialize anchor memory for targets
+            for (const target of targets) {
+                if (Memory.anchors[target.id] == null) {
+                    Memory.anchors[target.id] = {'creeps': []}
+                }
             }
-        }
-        // Find least assigned anchor target
-        const minTarget = targets.reduce((res, target) =>
-
-            (Memory.anchors[target.id].creeps.length < Memory.anchors[res.id].creeps.length) ? target : res
-        );
-        // Assign creep to that target
-        Memory.anchors[minTarget.id].creeps.push(creep.name);
-        creep.memory.anchorId = minTarget.id;
-        console.log(creep.name + " assigned to anchor " + minTarget);
-        // One last memory management item
-        for (const objId in Memory.anchors) {
-            if (Game.getObjectById(objId) == null) {
-                console.log('Cleaning up anchor memory for obj:' + objId);
-                delete Memory.anchors[objId]
+            // Find least assigned anchor target
+            const minTarget = targets.reduce((res, target) =>
+                (Memory.anchors[target.id].creeps.length < Memory.anchors[res.id].creeps.length) ? target : res
+            );
+            // Assign creep to that target
+            Memory.anchors[minTarget.id].creeps.push(creep.name);
+            creep.memory.anchorId = minTarget.id;
+            console.log(creep.name + " assigned to anchor " + minTarget);
+            // One last memory management item
+            for (const objId in Memory.anchors) {
+                if (Game.getObjectById(objId) == null) {
+                    console.log('Cleaning up anchor memory for obj:' + objId);
+                    delete Memory.anchors[objId]
+                }
             }
         }
     },

@@ -31,13 +31,17 @@ module.exports = {
         let spawnCreep;
         let spawnLog;
         if (room.memory.spawnQueue.length > 0) {
+            console.log(room.name + ' attempting to spawn from queue');
             const spawns = room.find(FIND_MY_SPAWNS);
             for (const spawn of spawns) {
                 if (!spawn.spawning) {
+                    console.log(spawn.name + ' attempting to spawn from queue');
                     // Spawn desired creep, if any
                     spawnCreep = room.memory.spawnQueue.shift();
                     if (spawnCreep != null) {
-                        if ( spawn.spawnCreep(spawnCreep[0], spawnCreep[1], spawnCreep[2]) == 0) {
+                        const res = spawn.spawnCreep(spawnCreep[0], spawnCreep[1]+Game.time, spawnCreep[2]);
+                        console.log(spawn.name + ' spawn attempt result: ' + res);
+                        if ( res == 0) {
                             console.log(room.name + " spawning creep from queue: " + spawnCreep[1]);
                             break;
                         }

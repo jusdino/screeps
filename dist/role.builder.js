@@ -7,12 +7,19 @@ module.exports = {
     /** @param {Creep} creep **/
     run: function(creep) {
         if (creep.memory.anchorId == null) {
-            // Assign creep to an anchor
-            targeter.assignRoundRobinAnchorTarget(
-                creep, FIND_MY_STRUCTURES, (structure) => (
-                    structure.structureType == STRUCTURE_SPAWN
+            if (creep.memory.claim != null && creep.memory.claim.roomName != creep.room.name) {
+                const flag = Game.flags[creep.memory.claim.flagName];
+                console.log(creep.name + ' moving to flag: ' + flag.name);
+                creep.moveTo(flag, {visualizePathStyle: {stroke: '#ffff00'}});
+                return;
+            } else {
+                // Assign creep to an anchor
+                targeter.assignRoundRobinAnchorTarget(
+                    creep, FIND_MY_STRUCTURES, (structure) => (
+                        structure.structureType == STRUCTURE_SPAWN
+                    )
                 )
-            )
+            }
         }
 
         if(creep.store[RESOURCE_ENERGY] == 0) {

@@ -23,32 +23,35 @@ module.exports = {
         console.log(room.name + " - " + room.energyAvailable + " of " + room.energyCapacityAvailable + " energy");
     },
 
-    executeClaim(fromRoomName, toRoomName) {
-        /* UNTESTED!!
+    executeClaim(fromRoomName, toRoomName, flagName) {
+        /*
          * This script can be executed to attempt at claiming an uncontested neutral room
          * To use:
-         * - Set a flag where you would like a defender to go anchor or let the script create one on the room controller.
-         * - Run `require('management').executeClaim('<room-to-claim-from>', '<the-room-you-want>')`
-         roleSummary*/
+         * - Set a flag where you would like a defender to go anchor.
+         * - Run `require('management').executeClaim('<room-to-claim-from>', '<the-room-you-want>', '<flag-name-in-to-room>')`
+         roleSummary
+         * - As soon as the controller is claimed, place a spawn construction site
+         */
         const fromRoom = Game.rooms[fromRoomName];
-        const toRoom = Game.rooms[toRoomName];
-        fromRoom.memory.claim = {
-            roomName: toRoomName
+        if (fromRoom == null) {
+            console.log('Failed to find room: ' + fromRoomName);
+            return;
         }
-        // Use a flag or set one
-        let flag = toRoom.controller.pos.findClosestByPath(FIND_FLAGS);
-        if (flag == null) {
-            flag = Game.flags[toRoom.createFlag(toRoom.controller.pos)];
-            console.log('Created a flag in ' + toRoomName + " - " + flag.name);
-        } else {
-            console.log('Found a flag in ' + toRoomName + " - " + flag.name); }
-        // // Send a defender to the flag
+        fromRoom.memory.claim = {
+            roomName: toRoomName,
+            flagName: flagName
+        }
+        // Use a flag or set one - Note: you MUST place a flag if you have no creeps / owned structures
+        // in the room already as the api will not give you any room data otherwise
+        const flag = Game.flags[flagName];
+        console.log('Found a flag in ' + toRoomName + " - " + flag.name);
+        // Send a defender to the flag
         console.log('Queueing defender in spawnQueue at ' + fromRoom);
         fromRoom.memory.spawnQueue.push(
             [
                 [
                     TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-                    MOVE, MOVE,
+                    MOVE, MOVE, MOVE, MOVE,
                     RANGED_ATTACK, RANGED_ATTACK
                 ],
                 "Defender" + Game.time,
@@ -63,14 +66,14 @@ module.exports = {
         this.reinforceClaim(fromRoom, 'builder')
         this.reinforceClaim(fromRoom, 'builder')
         this.reinforceClaim(fromRoom, 'builder')
-        this.reinforceClaim(fromRoom, 'builder')
-        this.reinforceClaim(fromRoom, 'upgrader')
     },
 
     reinforceClaim(fromRoom, roleName) {
         console.log('Queueing ' + roleName + ' in spawnQueue at ' + fromRoom);
+        const memory = { role: roleName, claim: fromRoom.memory.claim};
+        console.log('With memory: ' + JSON.stringify(memory));
         fromRoom.memory.spawnQueue.push(
-                [fromRoom.memory.roles[roleName].bodyParts[0], roleName + Game.time,  { memory: { role: roleName, claim: fromRoom.memory.claim}}]
+                [fromRoom.memory.roles[roleName].bodyParts[0], roleName,  { memory: memory}]
         )
     }
 };

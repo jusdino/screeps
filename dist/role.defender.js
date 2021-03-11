@@ -37,18 +37,26 @@ module.exports = {
             console.log(creep.name + " assigned to flag " + minFlag.name);
         }
 
-        // const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
-        let nearestHostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
-        // if (nearestHostile == null && hostiles.length > 0) {
-        //     nearestHostile = hostiles[0];
-        // }
-        if (nearestHostile != null) {
-            let res = creep.rangedAttack(nearestHostile);
-            if (res == ERR_NOT_IN_RANGE) {
-                creep.moveTo(nearestHostile, {visualizePathStyle: {stroke: '#ff0000'}});
+        // Ony defend its designated room - so defenders won't attack everything enroute
+        // to a far-flung room
+        const flag = Game.flags[creep.memory.flagName];
+        const room = flag.room;
+        if (room != null && creep.room.name == flag.room.name) {
+            // const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
+            let nearestHostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
+            // if (nearestHostile == null && hostiles.length > 0) {
+            //     nearestHostile = hostiles[0];
+            // }
+            if (nearestHostile != null) {
+                let res = creep.rangedAttack(nearestHostile);
+                if (res == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(nearestHostile, {visualizePathStyle: {stroke: '#ff0000'}});
+                }
+            } else {
+                let flag = Game.flags[creep.memory.flagName];
+                creep.moveTo(flag, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         } else {
-            let flag = Game.flags[creep.memory.flagName];
             creep.moveTo(flag, {visualizePathStyle: {stroke: '#ffffff'}});
         }
     }
